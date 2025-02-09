@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Adicionar Nova Consulta</h2>
+
+    <!-- Exibe os agendamentos pendentes -->
+    {% if agendamentos %}
+        <h4>Agendamentos Pendentes</h4>
+        <ul>
+            {% for agendamento in agendamentos %}
+                <li>{{ agendamento.paciente.nome }} - {{ agendamento.data }} às {{ agendamento.hora }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">Nenhum agendamento pendente.</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+        <a href="{% url 'listar_consultas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+    </form>
+</div>
+{% endblock %}

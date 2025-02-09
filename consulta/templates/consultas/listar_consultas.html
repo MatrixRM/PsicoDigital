@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Consultas</h2>
+
+    {% if consultas %}
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Paciente</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consulta in consultas %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ consulta.paciente_nome }}</td>
+                    <td>{{ consulta.data_consulta }}</td>
+                    <td>{{ consulta.horario_consulta }}</td>
+                    <td>
+                        {% if consulta.status == "EM_ANDAMENTO" %}
+                            <span class="badge bg-warning">🟡 Em andamento</span>
+                        {% else %}
+                            <span class="badge bg-success">✅ Concluído</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if consulta.status == "EM_ANDAMENTO" %}
+                            <a href="{% url 'realizar_consulta' consulta.id %}" class="btn btn-primary">
+                                <i class="fas fa-stethoscope"></i> Atender
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Finalizado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">Nenhuma consulta encontrada.</p>
+    {% endif %}
+</div>
+{% endblock %}

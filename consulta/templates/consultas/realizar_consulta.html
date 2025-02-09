@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Consulta - {{ agendamento.paciente.nome }}</h2>
+    
+    <h4 class="text-muted">Informações do Paciente</h4>
+    <ul>
+        <li><strong>CPF:</strong> {{ agendamento.paciente.cpf }}</li>
+        <li><strong>Data de Nascimento:</strong> {{ agendamento.paciente.data_nascimento }}</li>
+        <li><strong>Endereço:</strong> {{ agendamento.paciente.endereco_logradouro }}, {{ agendamento.paciente.endereco_numero }} - {{ agendamento.paciente.endereco_bairro }}, {{ agendamento.paciente.endereco_cidade }} - {{ agendamento.paciente.endereco_estado }}</li>
+        <li><strong>Contato:</strong> 📞 {{ agendamento.paciente.telefone }} | WhatsApp: {{ agendamento.paciente.whatsapp }} | ✉️ {{ agendamento.paciente.email }}</li>
+    </ul>
+
+    <h4 class="text-muted">Dados do Agendamento</h4>
+    <ul>
+        <li><strong>Data:</strong> {{ agendamento.data }}</li>
+        <li><strong>Horário:</strong> {{ agendamento.hora }}</li>
+        <li><strong>Status:</strong> 
+            {% if agendamento.status == "Em andamento" %}
+                <span class="badge bg-warning">🟡 Em andamento</span>
+            {% else %}
+                <span class="badge bg-success">✅ Concluído</span>
+            {% endif %}
+
+        </li>
+    </ul>
+
+    <h4 class="text-muted">Consulta</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" name="salvar" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+        <button type="submit" name="concluir" class="btn btn-primary"><i class="fas fa-check"></i> Concluir</button>
+        <a href="{% url 'listar_agendamentos' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+# 📌 Sistema de Consultório de Psicologia
+
+Este é um sistema de gerenciamento de consultório de psicologia desenvolvido com **Django**. O sistema permite **cadastro de pacientes**, **agendamento de consultas**, **gerenciamento de profissionais de saúde** e **registro de consultas realizadas**.
+
+---
+
+## 🚀 Funcionalidades
+
+- 📋 **Cadastro de Usuários** (Secretária, Profissional de Saúde, Administrador)
+- 🏥 **Gestão de Pacientes** (Cadastro, Edição, Listagem)
+- 📅 **Agendamentos** (Apenas profissionais de saúde podem visualizar e criar agendamentos)
+- 👨‍⚕️ **Realização de Consultas** (Registra status da consulta)
+- 🔒 **Autenticação de Usuários** (Login e controle de permissões)
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+consultorio_psicologia/
+├── agendamentos/   # Módulo de agendamentos
+├── consulta/       # Módulo de consultas
+├── pacientes/      # Módulo de pacientes
+├── usuarios/       # Gerenciamento de usuários e autenticação
+├── templates/      # Arquivos HTML do sistema
+├── static/         # Arquivos estáticos (CSS, JS, imagens)
+└── manage.py       # Comando principal do Django
+```
+
+---
+
+## 🛠️ Configuração e Instalação
+
+### **1️⃣ Clonar o Repositório**
+```sh
+git clone https://github.com/MatrixRM/PsicoDigital.git
+cd PsicoDigital
+```
+
+### **2️⃣ Criar e Ativar o Ambiente Virtual**
+```sh
+python -m venv env
+source env/bin/activate  # Linux/macOS
+env\Scripts\activate    # Windows
+```
+
+### **3️⃣ Instalar Dependências**
+```sh
+pip install -r requirements.txt
+```
+
+### **4️⃣ Configurar o Banco de Dados**
+```sh
+python manage.py migrate
+```
+
+### **5️⃣ Criar Superusuário (para acessar o painel admin)**
+```sh
+python manage.py createsuperuser
+```
+
+### **6️⃣ Executar o Servidor**
+```sh
+python manage.py runserver
+```
+
+Acesse no navegador: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+
+---
+
+## ⚙️ Modelos Principais
+
+### **Usuário (`usuarios.models.Usuario`)**
+- `username` (str)
+- `email` (str)
+- `tipo_usuario` ("SECRETARIA", "PROFISSIONAL_SAUDE", "ADMIN")
+
+### **Paciente (`pacientes.models.Paciente`)**
+- `nome` (str)
+- `cpf` (str)
+- `data_nascimento` (date)
+- `telefone` (str)
+
+### **Agendamento (`agendamentos.models.Agendamento`)**
+- `paciente` (ForeignKey -> Paciente)
+- `psicologo` (ForeignKey -> Usuario, filtrado por PROFISSIONAL_SAUDE)
+- `data` (date)
+- `hora` (time)
+- `status` ("Em andamento", "Concluído", "Cancelado")
+
+### **Consulta (`consulta.models.Consulta`)**
+- `paciente` (ForeignKey -> Paciente)
+- `profissional` (ForeignKey -> Usuario, filtrado por PROFISSIONAL_SAUDE)
+- `data_consulta` (date)
+- `horario_consulta` (time)
+- `status` ("EM_ANDAMENTO", "CONCLUIDO")
+
+---
+
+## 📜 Licença
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
+---
+
+## 📞 Contato
+Caso tenha dúvidas ou sugestões, entre em contato:
+- 💻 **Desenvolvedor:** Roberto Mânica
+- 📧 **E-mail:** robertomanica@yahoo.com.br
+- 🔗 **LinkedIn:** https://www.linkedin.com/in/roberto-m%C3%A2nica-0876a21b7/
+

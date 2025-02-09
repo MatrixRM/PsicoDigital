@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>Gestão de Clientes</h2>
+
+    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary">Novo paciente</a>
+
+    <div class="table-container mt-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>WhatsApp</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paciente in pacientes %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ paciente.nome }} {{ paciente.sobrenome }}</td>
+                    <td>{{ paciente.telefone }}</td>
+                    <td>
+                        <a href="https://api.whatsapp.com/send?phone=55{{ paciente.whatsapp }}" target="_blank">
+                            {{ paciente.whatsapp }}
+                        </a>
+                    </td>
+                    <td>{{ paciente.email }}</td>
+                    <td class="acoes">
+                        <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-warning">✏️ Editar</a>
+                        <a href="#" class="btn btn-danger" onclick="confirmarExclusao('{{ paciente.id }}')">🗑️ Excluir</a>
+                        <a href="{% url 'listar_agendamentos' %}" class="btn btn-success">📅 Agendar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal flutuante de Exclusão -->
+<div id="modalConfirm" class="modal-confirm">
+    <h3>Deseja realmente excluir este cliente?</h3>
+    <button id="confirmarExclusaoBtn" class="btn-yes" onclick="excluirPaciente()">Sim</button>
+    <button class="btn-no" onclick="fecharModal()">Não</button>
+</div>
+
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

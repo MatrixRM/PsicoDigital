@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1>PsicoDigital</h1>
+    <h4>Consultório de Psicologia</h4>
+
+    {% if user.is_authenticated %}
+        <p>Bem-vindo, <strong>{{ user.first_name|default:user.username }}</strong>!</p>
+        <p class="text-muted">Perfil: {{ user.get_tipo_usuario_display }}</p>
+    {% else %}
+        <p>Bem-vindo ao sistema de gerenciamento de consultas.</p>
+    {% endif %}
+
+    <div class="row mt-4">
+        {% if user.is_authenticated and user.tipo_usuario == "SECRETARIA" or user.tipo_usuario == "PROFISSIONAL_SAUDE" %}
+            <div class="col-md-3">
+                <a href="{% url 'listar_pacientes' %}" class="btn btn-primary btn-lg w-100">Pacientes</a>
+            </div>
+        {% endif %}
+        
+        <div class="col-md-3">
+            <a href="{% url 'listar_agendamentos' %}" class="btn btn-success btn-lg w-100">Agendamentos</a>
+        </div>
+        
+        {% comment %} {% if user.is_authenticated %}
+            <div class="col-md-3">
+                <a href="{% url 'listar_psicologos' %}" class="btn btn-warning btn-lg w-100">Psicólogos</a>
+            </div>
+        {% endif %} {% endcomment %}
+
+        {% if user.is_authenticated and user.tipo_usuario == "PSICOLOGO" %}
+            <div class="col-md-3">
+                <a href="{% url 'listar_consultas' %}" class="btn btn-info btn-lg w-100">
+                    <i class="fas fa-notes-medical"></i> Consultas
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

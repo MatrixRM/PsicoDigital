@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📅 Agendamentos</h2>
+
+    <!-- Apenas Secretárias podem criar novos agendamentos -->
+    {% if user.is_authenticated and user.tipo_usuario == "SECRETARIA" %}
+        <a href="{% url 'criar_agendamento' %}" class="btn btn-primary mb-3">
+            <i class="fas fa-calendar-plus"></i> Novo Agendamento
+        </a>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Paciente</th>
+                    <th>Psicólogo</th>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in agendamentos %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ agendamento.paciente.nome }}</td>
+                    <td>{{ agendamento.psicologo.username }}</td> <!-- Exibe o nome do psicólogo -->
+                    <td>{{ agendamento.data }}</td>
+                    <td>{{ agendamento.hora }}</td>
+                    <td>
+                        {% if agendamento.status == "Em andamento" %}
+                            <span class="badge bg-warning text-dark">🟡 Em andamento</span>
+                        {% elif agendamento.status == "Concluído" %}
+                            <span class="badge bg-success">✅ Concluído</span>
+                        {% else %}
+                            <span class="badge bg-danger">❌ Cancelado</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <!-- Apenas Psicólogos podem atender consultas se o status for "Em andamento" -->
+                        {% if user.is_authenticated and user.tipo_usuario == "PSICOLOGO" and agendamento.psicologo == user and agendamento.status == "Em andamento" %}
+                            <a href="{% url 'realizar_consulta' agendamento.id %}" class="btn btn-primary">
+                                <i class="fas fa-stethoscope"></i> Atender
+                            </a>
+                        {% endif %}
+
+                        <!-- Psicólogos e Secretárias podem editar -->
+                        {% if user.is_authenticated and user.tipo_usuario in "PSICOLOGO SECRETARIA" %}
+                            <a href="{% url 'editar_agendamento' agendamento.id %}" class="btn btn-warning">✏️ Editar</a>
+                        {% endif %}
+
+                        <!-- Apenas Secretárias podem excluir -->
+                        {% if user.is_authenticated and user.tipo_usuario == "SECRETARIA" %}
+                            <form action="{% url 'excluir_agendamento' agendamento.id %}" method="post" style="display:inline;"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este agendamento?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">🗑️ Excluir</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">Nenhum agendamento encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

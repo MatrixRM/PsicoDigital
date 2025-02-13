@@ -3,46 +3,31 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Agendamento
 from .forms import AgendamentoForm
-from usuarios.models import Usuario
+from usuarios.permissions import is_secretaria_ou_profissional_saude, pode_gerenciar_agendamento, is_psicologo
 
-
-# ✅ Função para verificar se o usuário pode ver agendamentos
-def pode_ver_agendamentos(user):
-    """Permite que Psicólogos, Secretárias e Profissionais de Saúde visualizem os agendamentos."""
-    return user.is_authenticated and user.tipo_usuario in ["SECRETARIA", "PROFISSIONAL_SAUDE", "PSICOLOGO"]
-
-
-# ✅ Função para verificar se o usuário pode gerenciar um agendamento (editar/excluir)
-def pode_gerenciar_agendamento(user, agendamento):
-    """
-    - Psicólogos podem gerenciar apenas seus próprios agendamentos.
-    - Secretárias podem gerenciar qualquer agendamento.
-    """
-    return user.tipo_usuario == "SECRETARIA" or (user.tipo_usuario == "PSICOLOGO" and agendamento.psicologo == user)
-
-
-# ✅ View para listar os agendamentos
 @login_required
-@user_passes_test(pode_ver_agendamentos)
+@user_passes_test(is_secretaria_ou_profissional_saude)
 def listar_agendamentos(request):
-    """Lista os agendamentos disponíveis para o usuário logado."""
-
-    if request.user.tipo_usuario == "SECRETARIA":
-        agendamentos = Agendamento.objects.all().order_by("-data", "-hora")  # Secretárias veem todos os agendamentos
-    else:
-        agendamentos = Agendamento.objects.filter(psicologo=request.user).order_by("-data", "-hora")  # Psicólogos veem apenas os seus
+    """Lista os agendamentos para profissionais de saúde"""
+    agendamentos = Agendamento.objects.exclude(id=None).order_by("-data", "-hora")
+    
+    if not agendamentos:
+        messages.warning(request, "Nenhum agendamento encontrado!")
 
     return render(request, "agendamentos/listar_agendamentos.html", {"agendamentos": agendamentos})
 
 
+
+# ✅ Criar um novo agendamento
 @login_required
+@user_passes_test(is_secretaria_ou_profissional_saude)
+
 def criar_agendamento(request):
     """Permite criar um novo agendamento selecionando paciente e psicólogo"""
-    
+
     if request.method == "POST":
         form = AgendamentoForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)  # Verifique o que está sendo enviado no formulário
             agendamento = form.save(commit=False)
             
             # Garantir que o status seja atribuído corretamente
@@ -60,9 +45,7 @@ def criar_agendamento(request):
     return render(request, "agendamentos/criar_agendamento.html", {"form": form})
 
 
-
-
-# ✅ View para editar um agendamento
+# ✅ Editar um agendamento
 @login_required
 def editar_agendamento(request, agendamento_id):
     """Permite que apenas psicólogos editem seus próprios agendamentos e secretárias editem qualquer agendamento"""
@@ -85,8 +68,7 @@ def editar_agendamento(request, agendamento_id):
     return render(request, "agendamentos/editar_agendamento.html", {"form": form, "agendamento": agendamento})
 
 
-
-# ✅ View para excluir um agendamento
+# ✅ Excluir um agendamento
 @login_required
 def excluir_agendamento(request, agendamento_id):
     """Permite que psicólogos excluam seus próprios agendamentos e secretárias excluam qualquer agendamento"""

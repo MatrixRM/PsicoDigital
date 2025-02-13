@@ -3,27 +3,45 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Adicionar Nova Consulta</h2>
+    <h2><i class="fas fa-calendar-plus"></i> Adicionar Nova Consulta</h2>
+    
+    <!-- Exibe mensagem de erro se não houver agendamentos disponíveis -->
+    {% if not agendamentos %}
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> Nenhum paciente disponível para consulta. 
+            <a href="{% url 'listar_agendamentos' %}" class="alert-link">Ver agendamentos</a>.
+        </div>
+    {% endif %}
 
     <!-- Exibe os agendamentos pendentes -->
     {% if agendamentos %}
-        <h4>Agendamentos Pendentes</h4>
-        <ul>
-            {% for agendamento in agendamentos %}
-                <li>{{ agendamento.paciente.nome }} - {{ agendamento.data }} às {{ agendamento.hora }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-muted">Nenhum agendamento pendente.</p>
+        <h4 class="mt-3"><i class="fas fa-calendar-alt"></i> Pacientes Agendados</h4>
+        <table class="table table-bordered table-hover mt-2">
+            <thead class="table-dark">
+                <tr>
+                    <th>Paciente</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in agendamentos %}
+                    <tr>
+                        <td>{{ agendamento.paciente.nome }}</td>
+                        <td>{{ agendamento.data }}</td>
+                        <td>{{ agendamento.hora }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'realizar_consulta' agendamento.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-stethoscope"></i> Atender
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
-        <a href="{% url 'listar_consultas' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
-    </form>
+    
 </div>
 {% endblock %}

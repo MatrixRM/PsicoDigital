@@ -1,6 +1,11 @@
 from django.db import models
 from usuarios.models import Usuario
 
+class AgendamentoManager(models.Manager):
+    def agendamentos_do_profissional(self, usuario):
+        """Filtra os agendamentos apenas para o profissional logado"""
+        return self.filter(psicologo=usuario).order_by('-data', '-hora')
+
 class Agendamento(models.Model):
     paciente = models.ForeignKey("pacientes.Paciente", on_delete=models.CASCADE)
     

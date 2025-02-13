@@ -12,14 +12,14 @@
                     <th>Data</th>
                     <th>Hora</th>
                     <th>Status</th>
-                    <th>Ações</th>
+                    <th class="text-center">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for consulta in consultas %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ consulta.paciente_nome }}</td>
+                    <td>{{ consulta.paciente.nome }}</td>
                     <td>{{ consulta.data_consulta }}</td>
                     <td>{{ consulta.horario_consulta }}</td>
                     <td>
@@ -29,16 +29,43 @@
                             <span class="badge bg-success">✅ Concluído</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if consulta.status == "EM_ANDAMENTO" %}
-                            <a href="{% url 'realizar_consulta' consulta.id %}" class="btn btn-primary">
-                                <i class="fas fa-stethoscope"></i> Atender
-                            </a>
-                        {% else %}
-                            <span class="text-muted">Finalizado</span>
+                    <td class="text-center">
+                        
+
+                       
+
+                        <!-- Botão para excluir consulta -->
+                        {% if user.is_authenticated and user.tipo_usuario == "PSICOLOGO" %}
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalExcluir{{ consulta.id }}">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
                         {% endif %}
                     </td>
                 </tr>
+
+                <!-- Modal de Confirmação para Exclusão -->
+                <div class="modal fade" id="modalExcluir{{ consulta.id }}" tabindex="-1" aria-labelledby="modalLabel{{ consulta.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel{{ consulta.id }}">Confirmar Exclusão</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                Tem certeza de que deseja excluir a consulta de <strong>{{ consulta.paciente.nome }}</strong> 
+                                agendada para <strong>{{ consulta.data_consulta }}</strong> às <strong>{{ consulta.horario_consulta }}</strong>?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <form method="post" action="{% url 'excluir_consulta' consulta.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {% endfor %}
             </tbody>
         </table>

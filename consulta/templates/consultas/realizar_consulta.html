@@ -3,14 +3,23 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Consulta - {{ agendamento.paciente.nome }}</h2>
+    <h2>Consulta - {{ agendamento.paciente.nome|default:"Paciente não informado" }}</h2>
     
     <h4 class="text-muted">Informações do Paciente</h4>
     <ul>
-        <li><strong>CPF:</strong> {{ agendamento.paciente.cpf }}</li>
-        <li><strong>Data de Nascimento:</strong> {{ agendamento.paciente.data_nascimento }}</li>
-        <li><strong>Endereço:</strong> {{ agendamento.paciente.endereco_logradouro }}, {{ agendamento.paciente.endereco_numero }} - {{ agendamento.paciente.endereco_bairro }}, {{ agendamento.paciente.endereco_cidade }} - {{ agendamento.paciente.endereco_estado }}</li>
-        <li><strong>Contato:</strong> 📞 {{ agendamento.paciente.telefone }} | WhatsApp: {{ agendamento.paciente.whatsapp }} | ✉️ {{ agendamento.paciente.email }}</li>
+        <li><strong>CPF:</strong> {{ agendamento.paciente.cpf|default:"Não informado" }}</li>
+        <li><strong>Data de Nascimento:</strong> {{ agendamento.paciente.data_nascimento|default:"Não informada" }}</li>
+        <li><strong>Endereço:</strong> 
+            {{ agendamento.paciente.endereco_logradouro|default:"Rua não informada" }}, 
+            {{ agendamento.paciente.endereco_numero|default:"S/N" }} - 
+            {{ agendamento.paciente.endereco_bairro|default:"Bairro não informado" }}, 
+            {{ agendamento.paciente.endereco_cidade|default:"Cidade não informada" }} - 
+            {{ agendamento.paciente.endereco_estado|default:"Estado não informado" }}
+        </li>
+        <li><strong>Contato:</strong> 📞 {{ agendamento.paciente.telefone|default:"Não informado" }} | 
+            WhatsApp: {{ agendamento.paciente.whatsapp|default:"Não informado" }} | 
+            ✉️ {{ agendamento.paciente.email|default:"Não informado" }}
+        </li>
     </ul>
 
     <h4 class="text-muted">Dados do Agendamento</h4>
@@ -20,22 +29,59 @@
         <li><strong>Status:</strong> 
             {% if agendamento.status == "Em andamento" %}
                 <span class="badge bg-warning">🟡 Em andamento</span>
-            {% else %}
+            {% elif agendamento.status == "Concluído" %}
                 <span class="badge bg-success">✅ Concluído</span>
+            {% else %}
+                <span class="badge bg-danger">❌ Cancelado</span>
             {% endif %}
-
         </li>
     </ul>
 
     <h4 class="text-muted">Consulta</h4>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.as_p }}
+
+    {% if agendamento.paciente %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" name="salvar" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+
+            <!-- Botão para abrir o modal de confirmação -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarConclusao">
+                <i class="fas fa-check"></i> Concluir
+            </button>
+
+            <a href="{% url 'listar_agendamentos' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    {% else %}
+        <div class="alert alert-danger mt-4">
+            <i class="fas fa-exclamation-triangle"></i> Não é possível realizar esta consulta porque o paciente não está cadastrado corretamente.
         </div>
-        <button type="submit" name="salvar" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
-        <button type="submit" name="concluir" class="btn btn-primary"><i class="fas fa-check"></i> Concluir</button>
-        <a href="{% url 'listar_agendamentos' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
-    </form>
+    {% endif %}
+
+    <!-- Modal de Confirmação -->
+    <div class="modal fade" id="confirmarConclusao" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Confirmar Conclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    Você tem certeza de que deseja concluir esta consulta? Essa ação não pode ser desfeita.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="concluir" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Sim, Concluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

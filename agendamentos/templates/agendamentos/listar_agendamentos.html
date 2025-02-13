@@ -5,8 +5,8 @@
 <div class="container mt-4">
     <h2 class="mb-4">📅 Agendamentos</h2>
 
-    <!-- Apenas Secretárias podem criar novos agendamentos -->
-    {% if user.is_authenticated and user.tipo_usuario == "SECRETARIA" %}
+    <!-- Secretárias e Profissionais de Saúde podem criar novos agendamntos -->
+    {% if user.is_authenticated and user.tipo_usuario in "SECRETARIA, PROFISSIONAL_SAUDE" %}
         <a href="{% url 'criar_agendamento' %}" class="btn btn-primary mb-3">
             <i class="fas fa-calendar-plus"></i> Novo Agendamento
         </a>
@@ -18,7 +18,7 @@
                 <tr>
                     <th>#</th>
                     <th>Paciente</th>
-                    <th>Psicólogo</th>
+                    <th>Profissional de Saúde</th>
                     <th>Data</th>
                     <th>Hora</th>
                     <th>Status</th>
@@ -30,7 +30,7 @@
                 <tr>
                     <td>{{ forloop.counter }}</td>
                     <td>{{ agendamento.paciente.nome }}</td>
-                    <td>{{ agendamento.psicologo.username }}</td> <!-- Exibe o nome do psicólogo -->
+                    <td>{{ agendamento.psicologo.username }}</td> <!-- Exibe o nome do profissional de saúde -->
                     <td>{{ agendamento.data }}</td>
                     <td>{{ agendamento.hora }}</td>
                     <td>
@@ -51,7 +51,7 @@
                         {% endif %}
 
                         <!-- Psicólogos e Secretárias podem editar -->
-                        {% if user.is_authenticated and user.tipo_usuario in "PSICOLOGO SECRETARIA" %}
+                        {% if user.is_authenticated and user.tipo_usuario in "PSICOLOGO, SECRETARIA" %}
                             <a href="{% url 'editar_agendamento' agendamento.id %}" class="btn btn-warning">✏️ Editar</a>
                         {% endif %}
 
